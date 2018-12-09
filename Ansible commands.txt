@@ -1,0 +1,308 @@
+ad-hoc command in ansible:
+
+1.ansible <host-groupname> -a uptime
+
+example:
+[root@CA38 ansible]# ansible connector -a uptime
+CA121 | SUCCESS | rc=0 >>
+ 09:46:54 up  3:37,  2 users,  load average: 7.53, 8.56, 6.86
+[root@CA38 ansible]#
+====================================================
+2. to know the modules installed in your system
+
+ansible-doc -l |more
+====================================================
+3. ansible-doc -l |more |wc -l
+[root@CA38 ansible]# ansible-doc -l |more |wc -l
+1852
+
+4.ping command
+================================================
+[root@CA38 ansible]# ansible connector -m ping
+CA121 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+[root@CA38 ansible]#
+============================================
+5.user account creation from ansible server on a remote server
+
+[root@CA38 ansible]# ansible connector -m user -a "name=mallesh password=ansible"
+CA121 | SUCCESS => {
+    "changed": true,
+    "comment": "",
+    "create_home": true,
+    "group": 1006,
+    "home": "/home/mallesh",
+    "name": "mallesh",
+    "password": "NOT_LOGGING_PASSWORD",
+    "shell": "/bin/bash",
+    "state": "present",
+    "stderr": "Creating mailbox file: No such file or directory\n",
+    "stderr_lines": [
+        "Creating mailbox file: No such file or directory"
+    ],
+    "system": false,
+    "uid": 1006
+}
+[root@CA38 ansible]#
+
+on remote server account created.
+
+[root@CA121 tmp]# id mallesh
+uid=1006(mallesh) gid=1006(mallesh) groups=1006(mallesh)
+[root@CA121 tmp]#
+=============================================
+6.to check teh capability of modules
+example of yum module capability
+ansible-doc -s yum 
+
+=============================================
+7. To perform shell operation on remote host you can use below format
+
+example you want to disaply the content of the file test.txt on remote host
+ansible connector -m shell -a "cat /tmp/test.txt"
+
+m
+[root@CA38 ansible]# ansible connector -m shell -a "cat /tmp/test.txt"
+CA121 | SUCCESS | rc=0 >>
+12345
+111111111111111111111111
+222222222222222222222222222222222
+33333333333333333333333333333333333333333333
+4444444444444444444444444444444444444444444444444444
+ 
+EXAMPLE 2 TO perform the df -h command on remote host
+
+
+[root@CA38 ansible]# ansible connector -m shell -a "df -h"
+====================================================
+
+8.ansible-doc -s followed by module name commnad will display what a module can do
+
+example 
+ansible-doc -s yum yum module capabilities it will display.
+
+9. shell command usage , you can utilise shall module to excute shell commands on remote server  as shown below
+
+ansible connector -m shell -a "df -h"
+[root@MaestrOS ansible]# ansible connector -m shell -a "df -h"
+10.1.18.121 | SUCCESS | rc=0 >>
+Filesystem                       Size  Used Avail Use% Mounted on
+devtmpfs                         7.8G     0  7.8G   0% /dev
+tmpfs                            7.8G  5.7M  7.8G   1% /dev/shm
+tmpfs                            7.8G   22M  7.8G   1% /run
+tmpfs                            7.8G     0  7.8G   0% /sys/fs/cgroup
+/dev/mapper/connector_vg-root1   7.8G  2.6G  4.9G  35% /
+/dev/sda2                        1.8G  371M  1.3G  23% /boot
+/dev/sda3                        953M   21M  932M   3% /boot/efi
+/dev/mapper/connector_vg-config  2.0G   23M  1.8G   2% /mnt/db
+/dev/mapper/connector_vg-var     4.8G  198M  4.4G   5% /mnt/var
+/dev/mapper/connector_vg-images   70G  2.9G   64G   5% /tmp
+/dev/dm-9                        9.8G  1.2G  8.1G  13% /mnt/images/docker/device                                                                                                                                                             mapper/mnt/13a4011debffb768e4617a15ab82d27e2221b29be649626c4b41594d51f1cf2b
+shm                               64M  4.0K   64M   1% /mnt/images/docker/contai                                                                                                                                                             ners/0baf4b607b87f63b08d076d8f8d9c35110b726f7e6f69e1e33cd0fc16b1deecd/mounts/shm
+/dev/dm-10                       9.8G  1.5G  7.8G  16% /mnt/images/docker/device                                                                                                                                                             mapper/mnt/e65a3edcfb485674f911b27da8655c7f21b5f0937c5cf96d55a50d72ae67235e
+shm                               64M     0   64M   0% /mnt/images/docker/contai                                                                                                                                                             ners/b8396f03e1c71d4263cb16fb1f2f814a204edd0c3ca9d729ac74c9a9ccd1385d/mounts/shm
+
+=========================================================
+10.to know what exactly the ansible commands are doing in the back ground you can specify thr -v option to check
+example 
+
+[root@MaestrOS ansible]# ansible connector -m shell -a "df -h" -v
+Using /ovn/ansible/ansible.cfg as config file           <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< it shows it is using the ansuible.cfg file to get the details accordingly it will execute the commands
+if you change the .cfg file parameters accordingly we can tweek the commands operation
+10.1.18.121 | SUCCESS | rc=0 >>
+Filesystem                       Size  Used Avail Use% Mounted on
+devtmpfs                         7.8G     0  7.8G   0% /dev
+tmpfs                            7.8G  5.7M  7.8G   1% /dev/shm
+tmpfs                            7.8G   22M  7.8G   1% /run
+tmpfs                            7.8G     0  7.8G   0% /sys/fs/cgroup
+/dev/mapper/connector_vg-root1   7.8G  2.6G  4.9G  35% /
+/dev/sda2                        1.8G  371M  1.3G  23% /boot
+/dev/sda3                        953M   21M  932M   3% /boot/efi
+/dev/mapper/connector_vg-config  2.0G   23M  1.8G   2% /mnt/db
+/dev/mapper/connector_vg-var     4.8G  163M  4.4G   4% /mnt/var
+/dev/mapper/connector_vg-images   70G  2.9G   64G   5% /tmp
+/dev/dm-9                        9.8G  1.2G  8.1G  13% /mnt/images/docker/devicemapper/mnt/13a4011debffb768e4617a15ab82d27e2221b29be649626c4b41594d51f1cf2b
+shm                               64M  4.0K   64M   1% /mnt/images/docker/containers/0baf4b607b87f63b08d076d8f8d9c35110b726f7e6f69e1e33cd0fc16b1deecd/mounts/shm
+/dev/dm-10                       9.8G  1.5G  7.8G  16% /mnt/images/docker/devicemapper/mnt/e65a3edcfb485674f911b27da8655c7f21b5f0937c5cf96d55a50d72ae67235e
+shm                               64M     0   64M   0% /mnt/images/docker/containers/b8396f03e1c71d4263cb16fb1f2f814a204edd0c3ca9d729ac74c9a9ccd1385d/mounts/shm
+[root@MaestrOS ansible]#
+
+==================================================
+11. yum module will install the packages make sure your s/w or rpm is available in /root/ folder
+
+ansible connector -m yum -a "name=adva_auth_hello-18.1.1.410-1.x86_64.rpm state=present"
+
+[root@MaestrOS ansible]# ansible connector -m yum -a "name=adva_auth_hello-18.1.                                                                                                                                                             1.410-1.x86_64.rpm state=present"
+10.1.18.121 | SUCCESS => {
+    "changed": true,
+    "msg": "",
+    "rc": 0,
+    "results": [
+        "Loaded plugins: fastestmirror, ovl\nExamining adva_auth_hello-18.1.1.410-1.x86_64.rpm: adva_auth_hello-18.1.1.410-1.x86_64\nMarking adva_auth_hello-18.1.1.410-1.x86_64.rpm to be installed\nResolving Dependencies\n--> Running transaction check\n---> Package adva_auth_hello.x86_64 0:18.1.1.410-1 will be installed\n--> Finished Dependency Resolution\n\nDependencies Resolved\n\n================================================================================\n Package         Arch   Version      Repository                            Size\n================================================================================\nInstalling:\n adva_auth_hello x86_64 18.1.1.410-1 /adva_auth_hello-18.1.1.410-1.x86_64 120 k\n\nTransaction Summary\n================================================================================\nInstall  1 Package\n\nTotal size: 120 k\nInstalled size: 120 k\nDownloading packages:\nRunning transaction check\nRunning transaction test\nTransaction test succeeded\nRunning transaction\n  Installing : adva_auth_hello-18.1.1.410-1.x86_64                          1/1 \n  Verifying  : adva_auth_hello-18.1.1.410-1.x86_64                          1/1 \n\nInstalled:\n  adva_auth_hello.x86_64 0:18.1.1.410-1                                         \n\nComplete!\n"
+    ]
+}
+
+
+===================================================
+12.ansible  service module it will control your service started or stopped 
+
+example below here I am starting a service called adva_auth_hello.service by using servic emodule state will make start or stop
+
+ansible connector -m service -a "name=adva_auth_hello.service state=started"
+
+[root@MaestrOS ansible]# ansible connector -m service -a "name=adva_auth_hello.service state=started"
+10.1.18.121 | SUCCESS => {
+    "changed": true,
+    "name": "adva_auth_hello.service",
+    "state": "started",
+    "status": {
+        "ActiveEnterTimestamp": "Sat 2018-01-20 18:21:16 GMT",
+        "ActiveEnterTimestampMonotonic": "403881292313",
+        "ActiveExitTimestamp": "Sat 2018-01-20 18:40:38 GMT",
+        "ActiveExitTimestampMonotonic": "405043464259",
+        "ActiveState": "inactive",
+        "After": "system.slice basic.target vse_maestros.service systemd-journald.socket",
+        "AllowIsolate": "no",
+        "AmbientCapabilities": "0",
+        "AssertResult": "yes",
+        "AssertTimestamp": "Sat 2018-01-20 18:21:13 GMT",
+        "AssertTimestampMonotonic": "403878416244",
+        "Before": "shutdown.target multi-user.target",
+        "BlockIOAccounting": "no",
+        "BlockIOWeight": "18446744073709551615",
+        "CPUAccounting": "no",
+        "CPUQuotaPerSecUSec": "infinity",
+        "CPUSchedulingPolicy": "0",
+        "CPUSchedulingPriority": "0",
+        "CPUSchedulingResetOnFork": "no",
+        "CPUShares": "18446744073709551615",
+        "CanIsolate": "no",
+        "CanReload": "no",
+        "CanStart": "yes",
+        "CanStop": "yes",
+        "CapabilityBoundingSet": "18446744073709551615",
+        "ConditionResult": "yes",
+        "ConditionTimestamp": "Sat 2018-01-20 18:21:13 GMT",
+        "ConditionTimestampMonotonic": "403878416243",
+        "Conflicts": "shutdown.target",
+        "ControlPID": "0",
+        "DefaultDependencies": "yes",
+        "Delegate": "no",
+        "Description": "Adva Auth Hello Service",
+        "DevicePolicy": "auto",
+        "ExecMainCode": "2",
+        "ExecMainExitTimestamp": "Sat 2018-01-20 18:40:40 GMT",
+        "ExecMainExitTimestampMonotonic": "405045350731",
+        "ExecMainPID": "17571",
+        "ExecMainStartTimestamp": "Sat 2018-01-20 18:21:16 GMT",
+        "ExecMainStartTimestampMonotonic": "403881292156",
+        "ExecMainStatus": "15",
+        "ExecStart": "{ path=/ovn/python/adva_auth_hello/hello_agent.py ; argv[]=/ovn/python/adva_auth_hello/hello_agent.py start ; ignore_errors=no ; start_time=[Sat 2018-01-20 18:21:13 GMT] ; stop_time=[Sat 2018-01-20 18:21:16 GMT] ; pid=17517 ; code=exited ; status=0 }",
+        "ExecStop": "{ path=/ovn/python/adva_auth_hello/hello_agent.py ; argv[]=/ovn/python/adva_auth_hello/hello_agent.py stop ; ignore_errors=no ; start_time=[Sat 2018-01-20 18:40:38 GMT] ; stop_time=[Sat 2018-01-20 18:40:40 GMT] ; pid=24543 ; code=exited ; status=0 }",
+        "FailureAction": "none",
+        "FileDescriptorStoreMax": "0",
+        "FragmentPath": "/usr/lib/systemd/system/adva_auth_hello.service",
+        "GuessMainPID": "yes",
+        "IOScheduling": "0",
+        "Id": "adva_auth_hello.service",
+        "IgnoreOnIsolate": "no",
+        "IgnoreOnSnapshot": "no",
+        "IgnoreSIGPIPE": "yes",
+        "InactiveEnterTimestamp": "Sat 2018-01-20 18:40:40 GMT",
+        "InactiveEnterTimestampMonotonic": "405045431468",
+        "InactiveExitTimestamp": "Sat 2018-01-20 18:21:13 GMT",
+        "InactiveExitTimestampMonotonic": "403878421616",
+        "JobTimeoutAction": "none",
+        "JobTimeoutUSec": "0",
+        "KillMode": "control-group",
+        "KillSignal": "15",
+        "LimitAS": "18446744073709551615",
+        "LimitCORE": "18446744073709551615",
+        "LimitCPU": "18446744073709551615",
+        "LimitDATA": "18446744073709551615",
+        "LimitFSIZE": "18446744073709551615",
+        "LimitLOCKS": "18446744073709551615",
+        "LimitMEMLOCK": "65536",
+        "LimitMSGQUEUE": "819200",
+        "LimitNICE": "0",
+        "LimitNOFILE": "4096",
+        "LimitNPROC": "63435",
+        "LimitRSS": "18446744073709551615",
+        "LimitRTPRIO": "0",
+        "LimitRTTIME": "18446744073709551615",
+        "LimitSIGPENDING": "63435",
+        "LimitSTACK": "18446744073709551615",
+        "LoadState": "loaded",
+        "MainPID": "0",
+        "MemoryAccounting": "no",
+        "MemoryCurrent": "18446744073709551615",
+        "MemoryLimit": "18446744073709551615",
+        "MountFlags": "0",
+        "Names": "adva_auth_hello.service",
+        "NeedDaemonReload": "no",
+        "Nice": "0",
+        "NoNewPrivileges": "no",
+        "NonBlocking": "no",
+        "NotifyAccess": "none",
+        "OOMScoreAdjust": "0",
+        "OnFailureJobMode": "replace",
+        "PIDFile": "/var/run/hello_agent.pid",
+        "PermissionsStartOnly": "no",
+        "PrivateDevices": "no",
+        "PrivateNetwork": "no",
+        "PrivateTmp": "no",
+        "ProtectHome": "no",
+        "ProtectSystem": "no",
+        "RefuseManualStart": "no",
+        "RefuseManualStop": "no",
+        "RemainAfterExit": "no",
+        "Requires": "basic.target",
+        "Restart": "no",
+        "RestartUSec": "100ms",
+        "Result": "success",
+        "RootDirectoryStartOnly": "no",
+        "RuntimeDirectoryMode": "0755",
+        "SameProcessGroup": "no",
+        "SecureBits": "0",
+        "SendSIGHUP": "no",
+        "SendSIGKILL": "yes",
+        "Slice": "system.slice",
+        "StandardError": "inherit",
+        "StandardInput": "null",
+        "StandardOutput": "journal",
+        "StartLimitAction": "none",
+        "StartLimitBurst": "5",
+        "StartLimitInterval": "10000000",
+        "StartupBlockIOWeight": "18446744073709551615",
+        "StartupCPUShares": "18446744073709551615",
+        "StatusErrno": "0",
+        "StopWhenUnneeded": "no",
+        "SubState": "dead",
+        "SyslogLevelPrefix": "yes",
+        "SyslogPriority": "30",
+        "SystemCallErrorNumber": "0",
+        "TTYReset": "no",
+        "TTYVHangup": "no",
+        "TTYVTDisallocate": "no",
+        "TasksAccounting": "no",
+        "TasksCurrent": "18446744073709551615",
+        "TasksMax": "18446744073709551615",
+        "TimeoutStartUSec": "1min 30s",
+        "TimeoutStopUSec": "1min 30s",
+        "TimerSlackNSec": "50000",
+        "Transient": "no",
+        "Type": "forking",
+        "UMask": "0022",
+        "UnitFilePreset": "disabled",
+        "UnitFileState": "enabled",
+        "WantedBy": "multi-user.target",
+        "Wants": "system.slice",
+        "WatchdogTimestampMonotonic": "0",
+        "WatchdogUSec": "0"
+    }
+}
+
+
+
